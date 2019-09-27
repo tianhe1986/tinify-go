@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -57,6 +58,14 @@ func (c *Client) Request(method string, url string, body interface{}) *http.Resp
 	req.SetBasicAuth("api", c.key)
 
 	response, _ := client.Do(req)
+
+	countStr := response.Header.Get("compression-count")
+	if countStr != "" {
+		count, err := strconv.Atoi(countStr)
+		if err == nil {
+			setComCount(count)
+		}
+	}
 
 	return response
 }
