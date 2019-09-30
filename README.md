@@ -16,7 +16,12 @@ import (
 func main() {
 	var key string = "XXXXXX"
 	tinify.SetKey(key)
+	
+	// from file
 	tinify.FromFile("./1.jpg").ToFile("./test1.jpg")
+	
+	// from url
+	tinify.FromUrl("https://XXXXXX.png").ToFile("./test2.png")
 }
 ```
 

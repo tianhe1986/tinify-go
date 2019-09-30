@@ -50,3 +50,13 @@ func FromBuffer(buffer []byte) *Source {
 	defer response.Body.Close()
 	return NewSource(response.Header.Get("location"), make(map[string]interface{}))
 }
+
+//从url创建一个source
+func FromUrl(url string) *Source {
+	var body map[string]interface{} = make(map[string]interface{})
+	body["source"] = map[string]string{"url": url}
+
+	response := GetClient().Request(http.MethodPost, "/shrink", body)
+	defer response.Body.Close()
+	return NewSource(response.Header.Get("location"), make(map[string]interface{}))
+}
