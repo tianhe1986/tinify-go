@@ -2,8 +2,11 @@ package tinify
 
 import (
 	"bytes"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -13,14 +16,17 @@ const API_ENDPOINT = "https://api.tinify.com"
 
 //TODO 证书使用， 代理地址使用
 type Client struct {
-	key    string // 使用的api key
-	capath string // 使用的证书地址
+	key    string         // 使用的api key
+	capool *x509.CertPool // 使用的证书 pool
 }
 
 func GetNewClient(key string, capath string) *Client {
 	c := new(Client)
 	c.key = key
-	c.capath = capath
+
+	cacert, _ := ioutil.ReadFile(capath)
+	c.capool = x509.NewCertPool()
+	c.capool.AppendCertsFromPEM(cacert)
 
 	return c
 }
@@ -47,7 +53,13 @@ func (c *Client) Request(method string, url string, body interface{}) *http.Resp
 	}
 
 	//发起请求
-	client := &http.Client{}
+	client := &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				RootCAs: c.capool,
+			},
+		},
+	}
 
 	req, _ := http.NewRequest(method, url, reader)
 

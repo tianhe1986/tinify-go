@@ -3,6 +3,8 @@ package tinify
 import (
 	"io/ioutil"
 	"net/http"
+	"path"
+	"runtime"
 )
 
 const VERSION = "0.0.1"
@@ -34,7 +36,13 @@ func GetClient() *Client {
 		return client
 	}
 
-	client = GetNewClient(key, capath)
+	tempPath := capath
+	if tempPath == "" {
+		_, tempfilename, _, _ := runtime.Caller(1)
+		tempPath = path.Join(path.Dir(tempfilename), "../data/cacert.pem")
+	}
+
+	client = GetNewClient(key, tempPath)
 	return client
 }
 
