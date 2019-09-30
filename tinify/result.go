@@ -9,6 +9,7 @@ type Result struct {
 	data []byte
 }
 
+//create a new result class
 func NewResult(meta map[string][]string, data []byte) *Result {
 	result := &Result{
 		meta: meta,
@@ -18,9 +19,7 @@ func NewResult(meta map[string][]string, data []byte) *Result {
 	return result
 }
 
-func (r *Result) ToFile(path string) {
-	err := ioutil.WriteFile(path, r.data, 0666)
-	if err != nil {
-		return
-	}
+// write to file
+func (r *Result) ToFile(path string) error {
+	return ioutil.WriteFile(path, r.data, 0666)
 }
