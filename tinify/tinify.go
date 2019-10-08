@@ -11,6 +11,7 @@ const VERSION = "0.0.1"
 
 var key string = ""    // 使用的Key
 var capath string = "" // 使用的capath
+var proxy string = ""  // 使用的代理url
 var client *Client = nil
 var comCount int = 0 // 当前压缩次数
 
@@ -20,6 +21,14 @@ func SetKey(newKey string) {
 
 func GetKey() string {
 	return key
+}
+
+func SetProxy(newProxy string) {
+	proxy = newProxy
+}
+
+func GetProxy() string {
+	return proxy
 }
 
 func setComCount(val int) {
@@ -42,7 +51,7 @@ func GetClient() *Client {
 		tempPath = path.Join(path.Dir(tempfilename), "../data/cacert.pem")
 	}
 
-	client = GetNewClient(key, tempPath)
+	client = GetNewClient(key, tempPath, proxy)
 	return client
 }
 

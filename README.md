@@ -17,6 +17,9 @@ func main() {
 	var key string = "XXXXXX"
 	tinify.SetKey(key)
 	
+	// optional, set the URL of your proxy server
+	// tinify.SetProxy("http://user:pass@192.168.0.1:8080")
+	
 	// from file
 	tinify.FromFile("./1.jpg").ToFile("./test1.jpg")
 	
@@ -41,6 +44,9 @@ import (
 func main() {
 	var key string = "XXXXXX"
 	tinify.SetKey(key)
+	
+	// optional, set the URL of your proxy server
+	// tinify.SetProxy("http://user:pass@192.168.0.1:8080")
 	
 	// scale with width
 	tinify.FromFile("./1.jpg").Resize("scale", 200, 0).ToFile("./test1-scale-width.jpg")
