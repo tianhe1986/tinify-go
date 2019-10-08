@@ -55,6 +55,10 @@ func GetClient() *Client {
 	return client
 }
 
+func SetClient(c *Client) {
+	client = c
+}
+
 //从文件创建一个source
 func FromFile(path string) *Source {
 	buffer, _ := ioutil.ReadFile(path)

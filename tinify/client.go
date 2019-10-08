@@ -27,9 +27,11 @@ func GetNewClient(key string, capath string, proxy string) *Client {
 	c.key = key
 	c.proxy = proxy
 
-	cacert, _ := ioutil.ReadFile(capath)
-	c.capool = x509.NewCertPool()
-	c.capool.AppendCertsFromPEM(cacert)
+	if capath != "" {
+		cacert, _ := ioutil.ReadFile(capath)
+		c.capool = x509.NewCertPool()
+		c.capool.AppendCertsFromPEM(cacert)
+	}
 
 	return c
 }
