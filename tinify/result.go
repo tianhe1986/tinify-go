@@ -23,3 +23,7 @@ func NewResult(meta map[string][]string, data []byte) *Result {
 func (r *Result) ToFile(path string) error {
 	return ioutil.WriteFile(path, r.data, 0666)
 }
+
+func (r *Result) ToBuffer() []byte {
+	return r.data
+}
