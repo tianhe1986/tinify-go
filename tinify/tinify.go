@@ -13,7 +13,12 @@ var key string = ""    // 使用的Key
 var capath string = "" // 使用的capath
 var proxy string = ""  // 使用的代理url
 var client *Client = nil
-var comCount int = 0 // 当前压缩次数
+var comCount int = 0                       // 当前压缩次数
+var mockClientFun func(*http.Client) = nil // 用于mock测试处理
+
+func SetMockClientFun(f func(*http.Client)) {
+	mockClientFun = f
+}
 
 func SetKey(newKey string) {
 	key = newKey

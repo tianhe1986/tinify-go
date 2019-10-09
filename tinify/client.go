@@ -79,6 +79,11 @@ func (c *Client) Request(method string, requestUrl string, body interface{}) *ht
 		Transport: transport,
 	}
 
+	// 用于单元测试
+	if mockClientFun != nil {
+		mockClientFun(client)
+	}
+
 	req, _ := http.NewRequest(method, requestUrl, reader)
 
 	if jsonHeader {
