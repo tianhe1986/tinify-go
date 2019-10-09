@@ -1,7 +1,10 @@
 package tinify
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
+	"strconv"
 	"testing"
 
 	"github.com/jarcoal/httpmock"
@@ -92,5 +95,74 @@ func TestCompress(t *testing.T) {
 
 // resize处理， 检查发送的头和获取到的结果
 func TestResize(t *testing.T) {
+	assert := assert.New(t)
 
+	httpmock.Activate()
+	defer httpmock.DeactivateAndReset()
+
+	// 由于未使用default Transport，因此需要这样处理
+	SetMockClientFun(httpmock.ActivateNonDefault)
+	defer SetMockClientFun(nil)
+
+	var location string = "/ojbk.png"
+	mockShrinkHeader := make(map[string]string)
+	mockShrinkHeader["location"] = location
+
+	//第一次请求shrink，返回图片URL
+	httpmock.RegisterResponder("POST", "https://api.tinify.com/shrink", newStringHeaderResponder(200, mockShrinkHeader, ""))
+	//第二次请求图片URL，带上resize参数，返回数据
+	var imgStr string = "resize test succeed"
+	httpmock.RegisterResponder("GET", "https://api.tinify.com"+location,
+		func(req *http.Request) (*http.Response, error) {
+			resp := httpmock.NewStringResponse(200, imgStr)
+
+			var commandMap map[string]map[string]interface{}
+			bodyContent, _ := ioutil.ReadAll(req.Body)
+			json.Unmarshal(bodyContent, &commandMap)
+
+			for key, value := range commandMap["resize"] {
+				switch value.(type) {
+				case string:
+					resp.Header.Set(key, value.(string))
+				case float64:
+					resp.Header.Set(key, strconv.FormatFloat(value.(float64), 'f', 0, 64))
+				case int:
+					resp.Header.Set(key, strconv.Itoa(value.(int)))
+				}
+			}
+			return resp, nil
+		},
+	)
+
+	var buffer []byte = make([]byte, 1)
+	var method string = "scale"
+	var width int = 300
+	var height int = 0
+
+	result := FromBuffer(buffer).Resize(method, width, height).Result()
+	assert.IsType(new(Result), result, "should be a Result pointer instance")
+
+	var resultStr string = string(result.ToBuffer())
+	assert.Equal(imgStr, resultStr, "image data should be the same")
+
+	var meta http.Header = result.GetMeta()
+	assert.Equal(method, meta.Get("method"), "method should be the same")
+	if width == 0 {
+		assert.Equal("", meta.Get("width"), "should no width")
+	} else {
+		resultWidth, _ := strconv.Atoi(meta.Get("width"))
+		assert.Equal(width, resultWidth, "width should be equal")
+	}
+
+	if height == 0 {
+		assert.Equal("", meta.Get("height"), "should no height")
+	} else {
+		resultHeight, _ := strconv.Atoi(meta.Get("height"))
+		assert.Equal(height, resultHeight, "height should be equal")
+	}
+
+	assert.Equal(2, httpmock.GetTotalCallCount(), "request should be 2")
+	info := httpmock.GetCallCountInfo()
+	assert.Equal(1, info["POST https://api.tinify.com/shrink"], "shrink url should be called only once")
+	assert.Equal(1, info["GET https://api.tinify.com"+location], "image url should be called only once")
 }

@@ -2,15 +2,16 @@ package tinify
 
 import (
 	"io/ioutil"
+	"net/http"
 )
 
 type Result struct {
-	meta map[string][]string
+	meta http.Header
 	data []byte
 }
 
 //create a new result class
-func NewResult(meta map[string][]string, data []byte) *Result {
+func NewResult(meta http.Header, data []byte) *Result {
 	result := &Result{
 		meta: meta,
 		data: data,
@@ -26,4 +27,8 @@ func (r *Result) ToFile(path string) error {
 
 func (r *Result) ToBuffer() []byte {
 	return r.data
+}
+
+func (r *Result) GetMeta() http.Header {
+	return r.meta
 }
