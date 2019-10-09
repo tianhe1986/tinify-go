@@ -1,4 +1,4 @@
-package tinifytest
+package tinify
 
 import (
 	"net/http"
@@ -6,16 +6,15 @@ import (
 
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
-	"github.com/tianhe1986/tinify-go/tinify"
 )
 
 // 这个测试没有什么用， 就是写着检查下是否正确
 func TestKey(t *testing.T) {
 	var key string = "ok your key"
-	tinify.SetKey(key)
+	SetKey(key)
 	assert := assert.New(t)
 	// assert equality
-	assert.Equal(key, tinify.GetKey(), "they should be equal")
+	assert.Equal(key, GetKey(), "they should be equal")
 }
 
 // 自定义返回处理，由于需要设置header，因此自行封装一层
@@ -38,8 +37,8 @@ func TestSource(t *testing.T) {
 	defer httpmock.DeactivateAndReset()
 
 	// 由于未使用default Transport，因此需要这样处理
-	tinify.SetMockClientFun(httpmock.ActivateNonDefault)
-	defer tinify.SetMockClientFun(nil)
+	SetMockClientFun(httpmock.ActivateNonDefault)
+	defer SetMockClientFun(nil)
 
 	var location string = "uuu happy"
 	mockResponseHeader := make(map[string]string)
@@ -48,7 +47,7 @@ func TestSource(t *testing.T) {
 	httpmock.RegisterResponder("POST", "https://api.tinify.com/shrink", NewStringHeaderResponder(200, mockResponseHeader, ""))
 
 	var buffer []byte = make([]byte, 1)
-	var source *tinify.Source = tinify.FromBuffer(buffer)
+	var source *Source = FromBuffer(buffer)
 
 	assert.Equal(location, source.Url, "location should be the value set")
 
